@@ -35,7 +35,7 @@ public class TeamProjectE {
     @SubscribeEvent
     public void onServerStopped(ServerStoppedEvent event) {
         TPCommand.INVITATIONS.clear();
-        TPSavedData.onServerStopped();
+        TPCoreData.onServerStopped();
     }
 
     @SubscribeEvent

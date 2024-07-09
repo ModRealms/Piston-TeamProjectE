@@ -95,19 +95,19 @@ public class TPTeam {
 
     public void addMember(UUID uuid) {
         markDirty();
-        TPSavedData.getData().invalidateCache(uuid);
+        TPCoreData.getData().invalidateCache(uuid);
         members.add(uuid);
         sync();
     }
 
     public void removeMember(UUID uuid) {
         markDirty();
-        TPSavedData.getData().invalidateCache(uuid);
+        TPCoreData.getData().invalidateCache(uuid);
         knowledge.removeMember(uuid);
         emc.removeMember(uuid);
         if (owner.equals(uuid)) {
             if (members.isEmpty()) {
-                TPSavedData.getData().teams.remove(teamUUID);
+                // TPSavedData.getData(this.teamUUID).teams.remove(teamUUID);
                 return;
             }
             UUID newOwner = members.get(ThreadLocalRandom.current().nextInt(members.size()));
@@ -199,7 +199,7 @@ public class TPTeam {
     }
 
     public void markDirty() {
-        TPSavedData.getData().setDirty();
+        TPSavedData.getData(this.teamUUID).setDirty();
     }
 
     public CompoundTag save() {
@@ -230,13 +230,13 @@ public class TPTeam {
 
     public static TPTeam createTeam(UUID uuid) {
         TPTeam team = new TPTeam(uuid);
-        TPSavedData.getData().teams.put(team.getUUID(), team);
-        TPSavedData.getData().setDirty();
+        TPSavedData.getData(uuid).team = team;
+        TPSavedData.getData(uuid).setDirty();
         return team;
     }
 
     public static TPTeam getTeam(UUID uuid) {
-        return TPSavedData.getData().teams.get(uuid);
+        return TPSavedData.getData(uuid).team;
     }
 
     public static boolean isInTeam(UUID uuid) {
@@ -244,19 +244,11 @@ public class TPTeam {
     }
 
     public static TPTeam getTeamByMember(UUID uuid) {
-        UUID teamUUID = TPSavedData.getData().playerTeamCache.get(uuid);
-
-        if (teamUUID == null)
-            for (Map.Entry<UUID, TPTeam> entry : TPSavedData.getData().teams.entrySet()) {
-                if (entry.getValue().getAll().contains(uuid)) {
-                    teamUUID = entry.getKey();
-                    TPSavedData.getData().playerTeamCache.put(uuid, teamUUID);
-                    break;
-                }
-            }
+        UUID teamUUID = TPCoreData.getData().playerTeamCache.get(uuid);
 
         if (teamUUID != null)
-            return TPSavedData.getData().teams.get(teamUUID);
+            return TPSavedData.getData(teamUUID).team;
+
         return null;
     }
 
