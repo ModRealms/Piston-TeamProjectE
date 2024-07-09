@@ -15,21 +15,21 @@ public class TPSavedData extends SavedData {
 
     private static TPSavedData DATA;
 
-    static TPSavedData getData() {
+    public static TPSavedData getData() {
         if (DATA == null && ServerLifecycleHooks.getCurrentServer() != null)
             DATA = ServerLifecycleHooks.getCurrentServer().overworld().getDataStorage()
                     .computeIfAbsent(TPSavedData::new, TPSavedData::new, "teamprojecte");
         return DATA;
     }
 
-    static void onServerStopped() {
+    public static void onServerStopped() {
         DATA = null;
     }
 
-    final Map<UUID, TPTeam> teams = new HashMap<>();
-    final Map<UUID, UUID> playerTeamCache = new HashMap<>();
+    public final Map<UUID, TPTeam> teams = new HashMap<>();
+    public final Map<UUID, UUID> playerTeamCache = new HashMap<>();
 
-    void invalidateCache(UUID uuid) {
+    public  void invalidateCache(UUID uuid) {
         playerTeamCache.remove(uuid);
     }
 

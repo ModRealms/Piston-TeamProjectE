@@ -13,12 +13,12 @@ import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class TPTeam {
-    private final UUID teamUUID;
-    private UUID owner;
-    private final List<UUID> members;
+    public final UUID teamUUID;
+    public UUID owner;
+    public final List<UUID> members;
 
-    private KnowledgeData knowledge;
-    private EMCData emc;
+    public  KnowledgeData knowledge;
+    public  EMCData emc;
 
     public TPTeam(UUID teamUUID, UUID owner) {
         this.teamUUID = teamUUID;
