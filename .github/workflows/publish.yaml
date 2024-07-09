@@ -34,15 +34,6 @@ jobs:
           java-version: 17
       - name: Validate Gradle Wrapper
         uses: gradle/wrapper-validation-action@v1
-      - name: Setup workspace
-        run: |
-          echo "GIT_COMMIT=${GITHUB_SHA}" >> $GITHUB_ENV
-          echo "GIT_BRANCH=${GITHUB_REF##*/}" >> $GITHUB_ENV
-      - name: Publish Snapshot
-        if: ${{ github.ref_name == 'develop' }}
-        run: |
-          chmod +x ./gradlew && ./gradlew "-PpistonVersion=${{ steps.calver.outputs.release }}-SNAPSHOT" "-Pmaven.auth.username=${MAVEN_USERNAME}" "-Pmaven.auth.password=${MAVEN_PASSWORD}" publish --stacktrace
       - name: Publish Release
-        if: ${{ github.ref_name == 'production' }}
         run: |
           chmod +x ./gradlew && ./gradlew "-Pmaven.auth.username=${{ secrets.MAVEN_USERNAME }}" "-Pmaven.auth.password=${{ secrets.MAVEN_PASSWORD }}" publish --stacktrace
