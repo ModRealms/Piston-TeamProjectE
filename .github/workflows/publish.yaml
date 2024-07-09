@@ -1,0 +1,48 @@
+name: Publish with Gradle
+
+on:
+  push:
+    branches: [ '1.20.1' ]
+
+env:
+  CACHE_REV: "1"
+
+jobs:
+  publish:
+    runs-on: ubuntu-22.04
+    env:
+      MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
+      MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+            ${{ github.workspace}}/build/
+            ${{ github.workspace}}/.gradle/
+          key: "${{ runner.os }}-build-${{ env.CACHE_REV }}-${{ hashFiles('**/*.gradle*') }}"
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.CACHE_REV }}-
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 17
+      - name: Validate Gradle Wrapper
+        uses: gradle/wrapper-validation-action@v1
+      - name: Setup workspace
+        run: |
+          echo "GIT_COMMIT=${GITHUB_SHA}" >> $GITHUB_ENV
+          echo "GIT_BRANCH=${GITHUB_REF##*/}" >> $GITHUB_ENV
+      - name: Publish Snapshot
+        if: ${{ github.ref_name == 'develop' }}
+        run: |
+          chmod +x ./gradlew && ./gradlew "-PpistonVersion=${{ steps.calver.outputs.release }}-SNAPSHOT" "-Pmaven.auth.username=${MAVEN_USERNAME}" "-Pmaven.auth.password=${MAVEN_PASSWORD}" publish --stacktrace
+      - name: Publish Release
+        if: ${{ github.ref_name == 'production' }}
+        run: |
+          chmod +x ./gradlew && ./gradlew "-Pmaven.auth.username=${{ secrets.MAVEN_USERNAME }}" "-Pmaven.auth.password=${{ secrets.MAVEN_PASSWORD }}" publish --stacktrace
